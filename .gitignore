@@ -1,0 +1,4 @@
+*.pyc
+env/
+data/*
+TCS3_SG14/*
