@@ -1,5 +1,7 @@
 import os
+import subprocess
 
+import numpy
 
 
 def read_aims(path):
@@ -19,7 +21,7 @@ def read_aims(path):
             line = line.strip()
             if not line:
                 continue
-            
+
             if "Total energy uncorrected" in line:
                 temp_energy = line.split()[5]
 
@@ -74,9 +76,9 @@ def write_data(base_name, elements, steps):
     yx yy yz
     zx zy zz
     E
-    x0 y0 z0
+    ele0 x0 y0 z0
     ...
-    xn yn zn
+    elen xn yn zn
     """
     for i, (coords, unit, energy) in enumerate(steps):
         with open(base_name + "__%04d.cry" % i, 'w') as f:
@@ -86,11 +88,28 @@ def write_data(base_name, elements, steps):
             coord_string = '\n'.join(ele + ' ' + ' '.join(x) for ele, x in zip(elements, coords))
             f.write(coord_string)
 
+
+def read_data_energies(path):
+    energies = []
+    for name in sorted(os.listdir("data")):
+        path = os.path.join("data", name)
+        with open(path, 'r') as f:
+            for i, line in enumerate(f):
+                if i == 3:
+                    energies.append(float(line.strip()))
+                    break
+    return energies
+
+
 if __name__ == '__main__':
     PATH = "TCS3_SG14"
-
     for directory in os.listdir(PATH):
         path = os.path.join(PATH, directory, 'aims.out')
         elements, steps = read_aims(path)
-        write_data(directory, elements, steps)
+        energies = [float(x[2]) for x in steps]
+        energies = numpy.array(energies)
+        print directory, len(energies), energies.mean(), energies.std(), energies.max() - energies.min()
+        base_name = "data/%s/%04d" % (directory, len(steps)-1)
+        subprocess.call(["mkdir", "-p", "data/%s" % directory])
+        write_data(base_name, elements, steps)
 
