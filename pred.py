@@ -93,6 +93,24 @@ def main(X, y):
         print numpy.abs(X_test.dot(w) + y_train.mean() - y_test).mean()
 
 
+def corrupt_ranking(y, fracs=None):
+    idxs = numpy.tril_indices(y.shape[0], -1)
+    size = len(idxs[0])
+    y_outer = (y > y[:, None])[idxs]
+    if fracs is None:
+        fracs = [0., 0.01, 0.05, 0.1, 0.2, 0.3]
+    for frac in fracs:
+        corr_idxs = numpy.random.choice(size, int(size * frac), replace=False)
+        y_corr = y_outer.copy()
+        y_corr[corr_idxs] ^= y_corr[corr_idxs]
+        corr = numpy.zeros((y.shape[0], y.shape[0]))
+        corr[idxs] = y_corr
+        corr.T[idxs] = numpy.logical_not(y_corr)
+        ordering = numpy.argsort(corr.sum(0))
+        plt.plot(y[ordering])
+    plt.show()
+
+
 paths = ["data/%s/"%x+sorted(os.listdir("data/"+x))[-1] for x in os.listdir("data")]
 paths_start = ["data/%s/"%x+sorted(os.listdir("data/"+x))[0] for x in os.listdir("data")]
 data_start = [read_cry(x) for x in paths_start]
