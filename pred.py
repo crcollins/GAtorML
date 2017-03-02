@@ -3,6 +3,8 @@ import os
 import numpy
 import scipy.stats
 from scipy.spatial.distance import cdist
+import matplotlib.pyplot as plt
+
 
 from molml.features import EncodedBond, EncodedAngle
 from molml.features import BagOfBonds
@@ -43,12 +45,10 @@ def get_unit_values(unit):
     return vol, alpha, beta, gamma
 
 def encode(values, start, end, slope, segments=100):
-    
     theta = numpy.linspace(start, end, segments)
     diff = values - theta[:, None]
     smooth = scipy.stats.norm.pdf
     return smooth(slope * diff).T
-
 
 
 def gauss_kernel(x, y, gamma=1e-5):
@@ -57,15 +57,25 @@ def gauss_kernel(x, y, gamma=1e-5):
     numpy.exp(dists, dists)
     return dists
 
+
 def compute_rank_diffs(rank1, rank2):
     map1 = {x: i for i, x in enumerate(rank1)}
     map2 = {x: i for i, x in enumerate(rank2)}
     return [abs(map1[x]-map2[x]) for x in rank1]
 
+
 def get_diff(X, y):
     idxs1, idxs2 = numpy.tril_indices(len(y), -1)
     vals, vecs = numpy.linalg.eig(X.T.dot(X))
     proj = X.dot(vecs[:, :2]).real
+
+
+def draw_cell(elements, coords, unit):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(coords[:,0], coords[:,1], coords[:,2])
+    # Draw unit vectors
+    plt.show()
 
 
 def main(X, y):
