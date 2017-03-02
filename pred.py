@@ -3,6 +3,7 @@ import os
 import numpy
 import scipy.stats
 from scipy.spatial.distance import cdist
+from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 
 
@@ -83,11 +84,8 @@ def main(X, y):
     for frac in [.8]:
         print
         print frac
-        split = int(len(data) * frac)
-        X_train = X[:split, :]
-        X_test = X[split:, :]
-        y_train = y[:split]
-        y_test = y[split:]
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-frac)
+
         alpha = 1e-1
         w = numpy.linalg.solve(X_train.T.dot(X_train)+ alpha*numpy.eye(X_train.shape[1]), X_train.T.dot(y_train - y_train.mean()))
         print y_train.std(), y_test.std()
