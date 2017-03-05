@@ -102,7 +102,7 @@ def get_outers(X, y):
     return X_outer, y_outer
 
 
-def main_lr(X, y):
+def main_lr(X, y, weight=False):
 
     for frac in [.8]:
         print
@@ -115,7 +115,12 @@ def main_lr(X, y):
         clf = LogisticRegression()
         clf = SVC()
         clf = RandomForestClassifier(max_depth=10, n_estimators=100)
-        clf.fit(X_train, y_train)
+        if weight:
+            print "Weighted"
+            weights = numpy.square((y_train - y_train.mean()) / y_train.std())
+            clf.fit(X_train, y_train, sample_weight=weights)
+        else:
+            clf.fit(X_train, y_train)
         print classification_report(y_train, clf.predict(X_train))
         print classification_report(y_test, clf.predict(X_test))
         print confusion_matrix(y_train, clf.predict(X_train))
@@ -230,4 +235,5 @@ if __name__ == "__main__":
         print "="*50
         X = numpy.hstack(group)
         main(X, y)
-        main_lr(X, y)
+        for b in (False, True):
+            main_lr(X, y, b)
