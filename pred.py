@@ -108,6 +108,41 @@ def get_outers(X, y):
     return X_outer, y_outer
 
 
+def main_lr(X, y):
+
+    for frac in [.8]:
+        print
+        print frac
+        X_train_, X_test_, y_train_, y_test_ = train_test_split(X, y, test_size=1-frac)
+
+        X_train, y_train = get_outers(X_train_, y_train_)
+        X_test, y_test = get_outers(X_test_, y_test_)
+
+        clf = LogisticRegression()
+        clf = SVC()
+        clf = RandomForestClassifier(max_depth=10, n_estimators=100)
+        clf.fit(X_train, y_train)
+        print classification_report(y_train, clf.predict(X_train))
+        print classification_report(y_test, clf.predict(X_test))
+        print confusion_matrix(y_train, clf.predict(X_train))
+        print confusion_matrix(y_test, clf.predict(X_test))
+
+        get_plot(y_train_, clf.predict(X_train))
+        get_plot(y_test_, clf.predict(X_test))
+        plt.show()
+
+
+def get_plot(y, pair_preds):
+    n = y.shape[0]
+    idxs = numpy.tril_indices(n, -1)
+    y_outer = numpy.zeros((n, n))
+    y_outer[idxs] = pair_preds
+    y_outer.T[idxs] = ~pair_preds
+    sums = y_outer.sum(0)
+    ordering = numpy.argsort(sums)
+    plt.plot(y[numpy.argsort(y)])
+    plt.plot(y[ordering])
+
 
 def corrupt_ranking(y, fracs=None):
     idxs = numpy.tril_indices(y.shape[0], -1)
