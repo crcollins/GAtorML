@@ -3,7 +3,7 @@ import os
 import numpy
 import scipy.stats
 from scipy.spatial.distance import cdist
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression, Ridge
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
@@ -93,11 +93,12 @@ def main(X, y):
         print frac
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-frac)
 
-        alpha = 1e-1
-        w = numpy.linalg.solve(X_train.T.dot(X_train)+ alpha*numpy.eye(X_train.shape[1]), X_train.T.dot(y_train - y_train.mean()))
+        clf = Ridge(alpha=1e-1)
+        clf.fit(X_train, y_train - y_train.mean())
         print y_train.std(), y_test.std()
-        print numpy.abs(X_train.dot(w) + y_train.mean() - y_train).mean()
-        print numpy.abs(X_test.dot(w) + y_train.mean() - y_test).mean()
+        print numpy.abs(clf.predict(X_train) + y_train.mean() - y_train).mean()
+        print numpy.abs(clf.predict(X_test) + y_train.mean() - y_test).mean()
+
 
 
 def corrupt_ranking(y, fracs=None):
