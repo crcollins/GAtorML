@@ -12,7 +12,6 @@ from sklearn.decomposition import PCA
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 
-
 from molml.features import EncodedBond, EncodedAngle
 from molml.features import BagOfBonds
 from molml.utils import get_connections
@@ -51,6 +50,7 @@ def get_unit_values(unit):
     beta = angle_between(unit[0], unit[2])
     gamma = angle_between(unit[1], unit[2])
     return vol, alpha, beta, gamma
+
 
 def encode(values, start, end, slope, segments=100):
     theta = numpy.linspace(start, end, segments)
@@ -162,70 +162,6 @@ def corrupt_ranking(y, fracs=None):
     plt.show()
 
 
-paths = ["data/%s/"%x+sorted(os.listdir("data/"+x))[-1] for x in os.listdir("data")]
-paths_start = ["data/%s/"%x+sorted(os.listdir("data/"+x))[0] for x in os.listdir("data")]
-data_start = [read_cry(x) for x in paths_start]
-data = [read_cry(x) for x in paths]
-data_start = data
-
-in_data = [(x[2], x[1]) for x in data_start]
-units = [x[0] for x in data_start]
-y = numpy.array([float(x[-1]) for x in data])
-
-
-
-
-print "OTHER"
-other = numpy.array([get_unit_values(unit) for unit in units])
-main(other, y)
-
-
-
-print "-"*50
-print "Encoded Other"
-vol = encode(other[:, 0], 900, 1250, 0.2)
-alpha = encode(other[:, 1], 0.1, 3., 20)
-beta = encode(other[:, 2], 0.1, 3., 20)
-gamma = encode(other[:, 3], 0.1, 3., 20)
-X = numpy.hstack([vol, alpha, beta, gamma])
-main(X, y)
-print "-"*50
-
-
-print "="*50
-print "="*50
-X = numpy.hstack([alpha, beta, gamma])
-main(X, y)
-print "+"*50
-X = numpy.hstack([vol])
-main(X, y)
-print "="*50
-print "="*50
-
-
-
-print "BOND"
-trans = EncodedBond()
-enc_bond = trans.fit_transform(in_data)
-print "ANGLE"
-trans2 = EncodedAngle(n_jobs=4)
-enc_angle = trans2.fit_transform(in_data)
-X = numpy.hstack([enc_bond, enc_angle])
-main(X, y)
-print "-"*50
-
-
-
-print "Normal and other"
-X = numpy.hstack([enc_bond, enc_angle, other])
-main(X, y)
-print "-"*50
-
-
-print "Normal and encoded other"
-X = numpy.hstack([enc_bond, enc_angle, vol, alpha, beta, gamma])
-main(X, y)
-
 def pca_plot(X, y):
     X_outer, y_outer = get_outers(X, y)
     pca = PCA(n_components=2)
@@ -239,3 +175,65 @@ def pca_plot(X, y):
     plt.show()
 
 
+if __name__ == "__main__":
+    dirs = [os.path.join("data", x) for x in os.listdir("data")]
+
+    paths_final = [os.path.join(x, sorted(os.listdir(x))[-1]) for x in dirs]
+    paths_start = [os.path.join(x, sorted(os.listdir(x))[0]) for x in dirs]
+
+    print "Load data"
+    data_final = [read_cry(x) for x in paths_final]
+    data_start = [read_cry(x) for x in paths_start]
+
+    in_data_final = [(x[2], x[1]) for x in data_final]
+    in_data_start = [(x[2], x[1]) for x in data_start]
+
+    units_final = [x[0] for x in data_final]
+    units_start = [x[0] for x in data_start]
+
+    y_final = numpy.array([float(x[-1]) for x in data_final])
+    y_start = numpy.array([float(x[-1]) for x in data_start])
+
+
+    print "OTHER"
+    other_final = numpy.array([get_unit_values(unit) for unit in units_final])
+    other_start = numpy.array([get_unit_values(unit) for unit in units_start])
+
+    print "Encoded Other"
+    for other in (other_start, ):
+        vol = encode(other[:, 0], 900, 1250, 0.2)
+        alpha = encode(other[:, 1], 0.1, 3., 20)
+        beta = encode(other[:, 2], 0.1, 3., 20)
+        gamma = encode(other[:, 3], 0.1, 3., 20)
+
+    for in_data in (in_data_start, ):
+        print "EncodedBond All"
+        trans = EncodedBond(n_jobs=4, max_depth=0, end=25)
+        enc_bond_all = trans.fit_transform(in_data)
+        print "EncodedBond Connected"
+        trans1 = EncodedBond(n_jobs=4, max_depth=10, end=25)
+        enc_bond_conn = trans1.fit_transform(in_data)
+        enc_bond_inter = enc_bond_all - enc_bond_conn
+        print "EncodedAngle"
+        trans2 = EncodedAngle(n_jobs=4)
+        enc_angle = trans2.fit_transform(in_data)
+
+    groups = (
+        ("Other", (other, )),
+        ("Other Enc", (vol, alpha, beta, gamma)),
+        ("Other Vol", (vol, )),
+        ("Other Angle Enc", (alpha, beta, gamma)),
+        ("Geom All", (enc_bond_all, )),
+        ("Geom Intra", (enc_bond_conn, )),
+        ("Geom Inter", (enc_bond_inter, )),
+        ("Geom Both", (enc_bond_conn, enc_bond_inter)),
+    )
+
+    for name, group in groups:
+        print "="*50
+        print name
+        print "="*50
+        X = numpy.hstack(group)
+        y = y_final
+        main(X, y)
+        main_lr(X, y)
