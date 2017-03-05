@@ -223,11 +223,11 @@ if __name__ == "__main__":
         ("Geom Both", (enc_bond_conn, enc_bond_inter)),
     )
 
+    y = y_final
     for name, group in groups:
         print "="*50
         print name
         print "="*50
         X = numpy.hstack(group)
-        y = y_final
         main(X, y)
         main_lr(X, y)
