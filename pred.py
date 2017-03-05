@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 
 from molml.features import EncodedBond, EncodedAngle
 from molml.features import BagOfBonds
+from molml.utils import get_connections
 
 
 def read_cry(path):
@@ -64,23 +65,24 @@ def gauss_kernel(x, y, gamma=1e-5):
     return dists
 
 
-def compute_rank_diffs(rank1, rank2):
-    map1 = {x: i for i, x in enumerate(rank1)}
-    map2 = {x: i for i, x in enumerate(rank2)}
-    return [abs(map1[x]-map2[x]) for x in rank1]
-
-
 def get_diff(X, y):
     idxs1, idxs2 = numpy.tril_indices(len(y), -1)
     vals, vecs = numpy.linalg.eig(X.T.dot(X))
     proj = X.dot(vecs[:, :2]).real
 
 
-def draw_cell(elements, coords, unit):
+def draw_cell(elements, coords, unit, connectivity=True):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     ax.scatter(coords[:,0], coords[:,1], coords[:,2])
-    # Draw unit vectors
+    if connectivity:
+        connectivity = get_connections(elements, coords)
+        for key, values in connectivity.items():
+            x0, y0, z0 = coords[key]
+            for val in values:
+                x1, y1, z1 = coords[val]
+                ax.plot([x0, x1], [y0, y1], [z0, z1], 'k-')
+
     plt.show()
 
 
