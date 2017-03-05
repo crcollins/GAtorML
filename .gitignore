@@ -1,4 +1,6 @@
 *.pyc
+*.swp
+*.npy
 env/
 data/*
 TCS3_SG14/*
