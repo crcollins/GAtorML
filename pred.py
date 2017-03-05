@@ -174,8 +174,46 @@ def pca_plot(X, y):
     plt.show()
 
 
+# Molecules that only have a final geometry
+ignore = set((
+	"487edb86c7",
+	"2802ac221e",
+	"b2adcdbd14",
+	"b630679961",
+	"fb5cccdc9a",
+	"248cef4774",
+	"8684d13999",
+	"cd2a0f4073",
+	"e744bcf9c7",
+	"34a235d9e0",
+	"0cb711305f",
+	"4cab41323a",
+	"0300cff927",
+	"5b2cc42b84",
+	"ae5a256373",
+	"2ff1957aac",
+	"e6471d5846",
+	"150d525970",
+	"4434601696",
+	"b569b236be",
+	"691040692f",
+	"7e123aade0",
+	"ea036587e2",
+	"589a067663",
+	"956dda2f91",
+	"a0d52e50da",
+	"4f8d1e506d",
+	"2f6c91482b",
+	"b968cf55d7",
+	"1a75763eca",
+	"1dc876c0f2",
+	"ac52b9314a",
+	"b736f63ae5",
+))
+
+
 if __name__ == "__main__":
-    dirs = [os.path.join("data", x) for x in os.listdir("data")]
+    dirs = [os.path.join("data", x) for x in os.listdir("data") if x not in ignore]
 
     paths_final = [os.path.join(x, sorted(os.listdir(x))[-1]) for x in dirs]
     paths_start = [os.path.join(x, sorted(os.listdir(x))[0]) for x in dirs]
