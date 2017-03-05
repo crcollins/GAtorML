@@ -8,6 +8,7 @@ from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.decomposition import PCA
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 
@@ -100,6 +101,13 @@ def main(X, y):
         print numpy.abs(clf.predict(X_test) + y_train.mean() - y_test).mean()
 
 
+def get_outers(X, y):
+    idxs = numpy.tril_indices(X.shape[0], -1)
+    X_outer = (X - X[:, None])[idxs]
+    y_outer = (y > y[:, None])[idxs]
+    return X_outer, y_outer
+
+
 
 def corrupt_ranking(y, fracs=None):
     idxs = numpy.tril_indices(y.shape[0], -1)
@@ -182,4 +190,17 @@ print "-"*50
 print "Normal and encoded other"
 X = numpy.hstack([enc_bond, enc_angle, vol, alpha, beta, gamma])
 main(X, y)
+
+def pca_plot(X, y):
+    X_outer, y_outer = get_outers(X, y)
+    pca = PCA(n_components=2)
+    X_new = pca.fit_transform(X_outer)
+    pos = numpy.where(y_outer)
+    neg = numpy.where(numpy.logical_not(y_outer))
+    comp0 = X_new[:, 0]
+    comp1 = X_new[:, 1]
+    plt.plot(comp0[pos], comp1[pos], '.', alpha=.2)
+    plt.plot(comp0[neg], comp1[neg], '.', alpha=.2)
+    plt.show()
+
 
