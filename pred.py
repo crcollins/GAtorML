@@ -66,12 +66,6 @@ def gauss_kernel(x, y, gamma=1e-5):
     return dists
 
 
-def get_diff(X, y):
-    idxs1, idxs2 = numpy.tril_indices(len(y), -1)
-    vals, vecs = numpy.linalg.eig(X.T.dot(X))
-    proj = X.dot(vecs[:, :2]).real
-
-
 def draw_cell(elements, coords, unit, connectivity=True):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
