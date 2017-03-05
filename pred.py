@@ -86,7 +86,7 @@ def main(X, y):
     for frac in [.8]:
         print
         print frac
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-frac)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-frac, random_state=4)
 
         clf = Ridge(alpha=1e-1)
         clf.fit(X_train, y_train - y_train.mean())
@@ -107,7 +107,7 @@ def main_lr(X, y, weight=False):
     for frac in [.8]:
         print
         print frac
-        X_train_, X_test_, y_train_, y_test_ = train_test_split(X, y, test_size=1-frac)
+        X_train_, X_test_, y_train_, y_test_ = train_test_split(X, y, test_size=1-frac, random_state=4)
 
         X_train, y_train = get_outers(X_train_, y_train_)
         X_test, y_test = get_outers(X_test_, y_test_)
