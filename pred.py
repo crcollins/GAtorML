@@ -102,6 +102,25 @@ def get_outers(X, y):
     return X_outer, y_outer
 
 
+def precision_at_k(rank_true, rank_pred, k=1):
+    pred_top_k = numpy.argsort(rank_pred)[-k:]
+    true_top_k = numpy.argsort(rank_true)[-k:]
+    precision = float(len(set(pred_top_k) & set(true_top_k))) / float(k)
+    return precision
+
+
+def ordered_prec(true, pred):
+    true_set = set()
+    pred_set = set()
+    vals = []
+    for i, (t, p) in enumerate(zip(true, pred)):
+        true_set.add(t)
+        pred_set.add(p)
+        vals.append(len(true_set & pred_set) / float(i+1))
+    plt.plot(vals)
+    return numpy.trapz(vals) / len(vals)
+
+
 def main_lr(X, y, weight=False):
 
     for frac in [.8]:
@@ -141,6 +160,8 @@ def get_plot(y, pair_preds):
     ordering = numpy.argsort(sums)
     plt.plot(y[numpy.argsort(y)])
     plt.plot(y[ordering])
+    print ordered_prec(numpy.argsort(y), ordering)
+    print ordered_prec(numpy.argsort(y)[::-1], ordering[::-1])
 
 
 def corrupt_ranking(y, fracs=None):
