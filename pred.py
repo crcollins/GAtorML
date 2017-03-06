@@ -81,6 +81,24 @@ def draw_cell(elements, coords, unit, connectivity=True):
     plt.show()
 
 
+def draw_cell_path(coords_list, elements, connectivity=True):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    new = numpy.array(zip(*coords_list))
+    for atom in new:
+        ax.plot(atom[:, 0], atom[:, 1], atom[:, 2], '--')
+    if connectivity:
+        connectivity = get_connections(elements, coords_list[0])
+        for color, coords in (('r', coords_list[0]), ('k', coords_list[-1])):
+            for key, values in connectivity.items():
+                x0, y0, z0 = coords[key]
+                for val in values:
+                    x1, y1, z1 = coords[val]
+                    ax.plot([x0, x1], [y0, y1], [z0, z1], color+'-')
+            ax.scatter(coords[:, 0], coords[:, 1], coords[:, 2], color)
+    plt.show()
+
+
 def main(X, y):
     X = numpy.hstack([X, numpy.ones((len(X), 1))])
     for frac in [.8]:
