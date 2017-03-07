@@ -213,6 +213,15 @@ def pca_plot(X, y):
     plt.show()
 
 
+def get_data(paths):
+    data = [read_cry(x) for x in paths]
+    in_data = [(x[2], x[1]) for x in data]
+    units = [x[0] for x in data]
+    y = numpy.array([float(x[-1]) for x in data])
+    other = numpy.array([get_unit_values(unit) for unit in units])
+    return in_data, units, other, y
+
+
 # Molecules that only have a final geometry
 ignore = set((
     "487edb86c7",
@@ -258,22 +267,9 @@ if __name__ == "__main__":
     paths_start = [os.path.join(x, sorted(os.listdir(x))[0]) for x in dirs]
 
     print "Load data"
-    data_final = [read_cry(x) for x in paths_final]
-    data_start = [read_cry(x) for x in paths_start]
+    in_data_final, units_final, other_final, y_final = get_data(paths_final)
+    in_data_start, units_start, other_start, y_start = get_data(paths_start)
 
-    in_data_final = [(x[2], x[1]) for x in data_final]
-    in_data_start = [(x[2], x[1]) for x in data_start]
-
-    units_final = [x[0] for x in data_final]
-    units_start = [x[0] for x in data_start]
-
-    y_final = numpy.array([float(x[-1]) for x in data_final])
-    y_start = numpy.array([float(x[-1]) for x in data_start])
-
-
-    print "OTHER"
-    other_final = numpy.array([get_unit_values(unit) for unit in units_final])
-    other_start = numpy.array([get_unit_values(unit) for unit in units_start])
 
     print "Encoded Other"
     for other in (other_start, ):
