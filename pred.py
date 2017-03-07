@@ -297,12 +297,15 @@ if __name__ == "__main__":
     groups = (
         ("Other", (other, )),
         ("Other Enc", (vol, alpha, beta, gamma)),
-        ("Other Vol", (vol, )),
+        ("Other Vol Enc", (vol, )),
         ("Other Angle Enc", (alpha, beta, gamma)),
+
         ("Geom All", (enc_bond_all, )),
         ("Geom Intra", (enc_bond_conn, )),
         ("Geom Inter", (enc_bond_inter, )),
         ("Geom Both", (enc_bond_conn, enc_bond_inter)),
+        ("Geom Intra Other Vol Enc", (enc_bond_conn, vol)),
+        ("Geom Intra Other Enc", (enc_bond_conn, vol, alpha, beta, gamma)),
     )
 
     y = y_final
