@@ -99,12 +99,22 @@ def draw_cell_path(coords_list, elements, connectivity=True):
     plt.show()
 
 
-def main(X, y):
+def main(X, y, groups=None):
     X = numpy.hstack([X, numpy.ones((len(X), 1))])
     for frac in [.8]:
         print
         print frac
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-frac, random_state=4)
+        if groups is None:
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-frac, random_state=4)
+        else:
+            from sklearn.model_selection import GroupKFold
+            gkf = GroupKFold(n_splits=5)
+            for i, (train, test) in enumerate(gkf.split(X, y, groups=groups)):
+                X_train = X[train, :]
+                X_test = X[test, :]
+                y_train = y[train]
+                y_test = y[test]
+                break
 
         clf = Ridge(alpha=1e-1)
         clf.fit(X_train, y_train - y_train.mean())
