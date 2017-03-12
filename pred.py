@@ -276,9 +276,13 @@ if __name__ == "__main__":
     paths_final = [os.path.join(x, sorted(os.listdir(x))[-1]) for x in dirs]
     paths_start = [os.path.join(x, sorted(os.listdir(x))[0]) for x in dirs]
 
+    t = sum([[(i, os.path.join(x, y)) for y in sorted(os.listdir(x))] for i, x in enumerate(dirs)], [])
+    split_groups, paths_all = zip(*t)
+
     print "Load data"
     in_data_final, units_final, other_final, y_final = get_data(paths_final)
     in_data_start, units_start, other_start, y_start = get_data(paths_start)
+    in_data_all, units_all, other_all, y_all = get_data(paths_all)
 
 
     print "Encoded Other"
