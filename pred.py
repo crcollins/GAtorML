@@ -286,6 +286,7 @@ if __name__ == "__main__":
     in_data_all, units_all, other_all, y_all = get_data(paths_all)
 
     coords_first = [read_cry(x)[1] for x in paths_first]
+    num_steps = [len(os.listdir(x)) for x in dirs]
 
     print "Encoded Other"
     for other in (other_start, ):
